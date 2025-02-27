@@ -69,8 +69,8 @@ export function transformInformation(data: NotionResponse): Information[] {
   return data.results.map((item: any) => ({
     id: item.id,
     moto: item.properties.moto?.title[0]?.plain_text || null,
-    contests: item.properties.contests?.rich_text[0]?.plain_text || null,
-    projects: item.properties.projects?.rich_text[0]?.plain_text || null,
-    rewards: item.properties.rewards?.rich_text[0]?.plain_text || null
+    contests: item.properties.contests?.number || null,
+    projects: item.properties.projects?.number || null,
+    rewards: item.properties.rewards?.number || null
   }));
 }
