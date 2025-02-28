@@ -1,22 +1,18 @@
 // src/api/notion.ts
 import { DATABASE_IDS } from '../constants';
-import type {NotionSortOption, NotionResponse, Award, QnA, Member, Information, Project} from '../types';
+import type { Award, Information, Member, NotionResponse, NotionSortOption, Project, QnA } from '../types';
+import { memoryCache } from '../utils/cache-utils';
 import {
-  transformMembers,
   transformAwards,
+  transformInformation,
+  transformMembers,
   transformProjects,
   transformQnA,
-  transformInformation,
 } from '../utils/notion-utils';
-import { memoryCache } from '../utils/cache-utils';
 
-async function fetchNotionDatabase(
-  databaseId: string,
-  sorts: NotionSortOption[] = []
-): Promise<NotionResponse> {
+async function fetchNotionDatabase(databaseId: string, sorts: NotionSortOption[] = []): Promise<NotionResponse> {
   const cacheKey = `notion_db_${databaseId}_${JSON.stringify(sorts)}`;
 
-  // Check if we have a cached version
   const cachedData = memoryCache.get<NotionResponse>(cacheKey);
   if (cachedData) {
     console.log(`Using cached data for database ${databaseId}`);
@@ -31,18 +27,17 @@ async function fetchNotionDatabase(
         Accept: 'application/json',
         'Notion-Version': '2022-02-22',
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.NOTION_API_KEY}`
+        Authorization: `Bearer ${process.env.NOTION_API_KEY}`,
       },
-      body: JSON.stringify({sorts})
+      body: JSON.stringify({ sorts }),
     });
 
     if (!res.ok) {
       throw new Error(`Notion API error: ${res.status} ${res.statusText}`);
     }
 
-    const data = await res.json() as NotionResponse;
+    const data = (await res.json()) as NotionResponse;
 
-    // Store in cache
     memoryCache.set(cacheKey, data);
 
     return data;
@@ -55,7 +50,6 @@ async function fetchNotionDatabase(
 export async function fetchAwards(): Promise<Award[]> {
   const cacheKey = 'transformed_awards';
 
-  // Check if we have a cached version
   const cachedData = memoryCache.get<Award[]>(cacheKey);
   if (cachedData) {
     console.log('Using cached awards data');
@@ -65,13 +59,12 @@ export async function fetchAwards(): Promise<Award[]> {
   const response = await fetchNotionDatabase(DATABASE_IDS.AWARDS, [
     {
       property: 'date',
-      direction: 'descending'
-    }
+      direction: 'descending',
+    },
   ]);
 
   const transformedData = transformAwards(response);
 
-  // Store in cache
   memoryCache.set(cacheKey, transformedData);
 
   return transformedData;
@@ -80,7 +73,6 @@ export async function fetchAwards(): Promise<Award[]> {
 export async function fetchQnA(): Promise<QnA[]> {
   const cacheKey = 'transformed_qna';
 
-  // Check if we have a cached version
   const cachedData = memoryCache.get<QnA[]>(cacheKey);
   if (cachedData) {
     console.log('Using cached QnA data');
@@ -90,7 +82,6 @@ export async function fetchQnA(): Promise<QnA[]> {
   const response = await fetchNotionDatabase(DATABASE_IDS.QNA);
   const transformedData = transformQnA(response);
 
-  // Store in cache
   memoryCache.set(cacheKey, transformedData);
 
   return transformedData;
@@ -99,7 +90,6 @@ export async function fetchQnA(): Promise<QnA[]> {
 export async function fetchMembers(): Promise<Member[]> {
   const cacheKey = 'transformed_members';
 
-  // Check if we have a cached version
   const cachedData = memoryCache.get<Member[]>(cacheKey);
   if (cachedData) {
     console.log('Using cached members data');
@@ -109,7 +99,6 @@ export async function fetchMembers(): Promise<Member[]> {
   const response = await fetchNotionDatabase(DATABASE_IDS.MEMBERS);
   const transformedData = transformMembers(response);
 
-  // Store in cache
   memoryCache.set(cacheKey, transformedData);
 
   return transformedData;
@@ -118,7 +107,6 @@ export async function fetchMembers(): Promise<Member[]> {
 export async function fetchInformation(): Promise<Information[]> {
   const cacheKey = 'transformed_information';
 
-  // Check if we have a cached version
   const cachedData = memoryCache.get<Information[]>(cacheKey);
   if (cachedData) {
     console.log('Using cached information data');
@@ -128,7 +116,6 @@ export async function fetchInformation(): Promise<Information[]> {
   const response = await fetchNotionDatabase(DATABASE_IDS.INFORMATION);
   const transformedData = transformInformation(response);
 
-  // Store in cache
   memoryCache.set(cacheKey, transformedData);
 
   return transformedData;
@@ -137,7 +124,6 @@ export async function fetchInformation(): Promise<Information[]> {
 export async function fetchProjects(): Promise<Project[]> {
   const cacheKey = 'transformed_projects';
 
-  // Check if we have a cached version
   const cachedData = memoryCache.get<Project[]>(cacheKey);
   if (cachedData) {
     console.log('Using cached projects data');
@@ -147,7 +133,6 @@ export async function fetchProjects(): Promise<Project[]> {
   const response = await fetchNotionDatabase(DATABASE_IDS.PROJECTS);
   const transformedData = transformProjects(response);
 
-  // Store in cache
   memoryCache.set(cacheKey, transformedData);
 
   return transformedData;

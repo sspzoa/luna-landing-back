@@ -1,9 +1,6 @@
 // src/utils/notion-utils.ts
-import type {Award, Information, Member, NotionResponse, Project, QnA} from '../types';
+import type { Award, Information, Member, NotionResponse, Project, QnA } from '../types';
 
-/**
- * Transform members data from Notion API
- */
 export function transformMembers(data: NotionResponse): Member[] {
   return data.results.map((item: any) => ({
     id: item.id,
@@ -13,13 +10,10 @@ export function transformMembers(data: NotionResponse): Member[] {
     generation: item.properties.generation?.select?.name || null,
     class: item.properties.class?.select?.name || null,
     description: item.properties.description?.rich_text[0]?.plain_text || null,
-    lunaGeneration: item.properties.lunaGeneration?.select?.name || null
+    lunaGeneration: item.properties.lunaGeneration?.select?.name || null,
   }));
 }
 
-/**
- * Transform awards data from Notion API
- */
 export function transformAwards(data: NotionResponse): Award[] {
   return data.results.map((item: any) => ({
     id: item.id,
@@ -29,13 +23,10 @@ export function transformAwards(data: NotionResponse): Award[] {
     prize: item.properties.prize?.rich_text[0]?.plain_text || null,
     team: item.properties.team?.rich_text[0]?.plain_text || null,
     members: item.properties.members?.multi_select.map((member: { name: string }) => member.name) || [],
-    date: item.properties.date?.date || null
+    date: item.properties.date?.date || null,
   }));
 }
 
-/**
- * Transform projects data from Notion API
- */
 export function transformProjects(data: NotionResponse): Project[] {
   return data.results.map((item: any) => ({
     id: item.id,
@@ -44,33 +35,28 @@ export function transformProjects(data: NotionResponse): Project[] {
     image: item.properties.image?.files[0]?.file?.url || null,
     name: item.properties.name?.title[0]?.plain_text || null,
     description: item.properties.description?.rich_text[0]?.plain_text || null,
-    awards: item.properties.awards?.multi_select.map((award: { id: string; name: string }) => ({
-      id: award.id,
-      name: award.name
-    })) || []
+    awards:
+      item.properties.awards?.multi_select.map((award: { id: string; name: string }) => ({
+        id: award.id,
+        name: award.name,
+      })) || [],
   }));
 }
 
-/**
- * Transform QnA data from Notion API
- */
 export function transformQnA(data: NotionResponse): QnA[] {
   return data.results.map((item: any) => ({
     id: item.id,
     question: item.properties.question?.title[0]?.plain_text || null,
-    answer: item.properties.answer?.rich_text[0]?.plain_text || null
+    answer: item.properties.answer?.rich_text[0]?.plain_text || null,
   }));
 }
 
-/**
- * Transform information data from Notion API
- */
 export function transformInformation(data: NotionResponse): Information[] {
   return data.results.map((item: any) => ({
     id: item.id,
     moto: item.properties.moto?.title[0]?.plain_text || null,
     contests: item.properties.contests?.number || null,
     projects: item.properties.projects?.number || null,
-    rewards: item.properties.rewards?.number || null
+    rewards: item.properties.rewards?.number || null,
   }));
 }
