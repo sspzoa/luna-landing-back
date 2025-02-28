@@ -6,6 +6,7 @@ import {
   fetchInformation,
   fetchProjects
 } from './api/notion';
+import { memoryCache } from './utils/cache-utils';
 
 interface ServerOptions {
   port: number;
@@ -25,7 +26,7 @@ export function startServer(options?: Partial<ServerOptions>): void {
       // CORS headers
       const headers = {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Content-Type": "application/json"
       };
@@ -35,8 +36,14 @@ export function startServer(options?: Partial<ServerOptions>): void {
         return new Response(null, { headers });
       }
 
-      // Make sure it's a GET request
-      if (request.method !== "GET") {
+      // Handle cache clear request
+      if (path === "/api/clear-cache" && request.method === "POST") {
+        memoryCache.clear();
+        return new Response(JSON.stringify({ success: true, message: "Cache cleared" }), { headers });
+      }
+
+      // Make sure other endpoints use GET request
+      if (path !== "/api/clear-cache" && request.method !== "GET") {
         return new Response(JSON.stringify({ error: "Method not allowed" }), {
           status: 405,
           headers
@@ -64,7 +71,16 @@ export function startServer(options?: Partial<ServerOptions>): void {
             data = await fetchProjects();
             break;
           case "/api/health":
-            return new Response(JSON.stringify({ status: "ok" }), { headers });
+            return new Response(JSON.stringify({
+              status: "ok",
+              cacheStatus: {
+                awards: memoryCache.has('transformed_awards'),
+                qna: memoryCache.has('transformed_qna'),
+                members: memoryCache.has('transformed_members'),
+                information: memoryCache.has('transformed_information'),
+                projects: memoryCache.has('transformed_projects')
+              }
+            }), { headers });
           default:
             return new Response(JSON.stringify({ error: "Not found" }), {
               status: 404,
