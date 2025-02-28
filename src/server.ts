@@ -13,31 +13,45 @@ export function startServer(options?: Partial<ServerOptions>): void {
       const url = new URL(request.url);
       const path = url.pathname;
 
-      const headers = {
+      const corsHeaders = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       };
 
       if (request.method === 'OPTIONS') {
-        return new Response(null, { headers });
+        return new Response(null, {
+          status: 204,
+          headers: corsHeaders,
+        });
       }
 
       if (path === '/') {
         return new Response('api.luna.codes', {
-          headers: headers,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'text/plain',
+          },
         });
       }
 
-      if (path === '/api/clear-cache' && request.method === 'POST') {
+      if (path === '/clear-cache' && request.method === 'POST') {
         memoryCache.clear();
-        return new Response(JSON.stringify({ success: true, message: 'Cache cleared' }), { headers });
+        return new Response(JSON.stringify({ success: true, message: 'Cache cleared' }), {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        });
       }
 
-      if (path !== '/api/clear-cache' && request.method !== 'GET') {
+      if (path !== '/clear-cache' && request.method !== 'GET') {
         return new Response(JSON.stringify({ error: 'Method not allowed' }), {
           status: 405,
-          headers,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
         });
       }
 
@@ -46,22 +60,22 @@ export function startServer(options?: Partial<ServerOptions>): void {
         let data;
 
         switch (path) {
-          case '/api/awards':
+          case '/awards':
             data = await fetchAwards();
             break;
-          case '/api/qna':
+          case '/qna':
             data = await fetchQnA();
             break;
-          case '/api/members':
+          case '/members':
             data = await fetchMembers();
             break;
-          case '/api/information':
+          case '/information':
             data = await fetchInformation();
             break;
-          case '/api/projects':
+          case '/projects':
             data = await fetchProjects();
             break;
-          case '/api/health':
+          case '/health':
             return new Response(
               JSON.stringify({
                 status: 'ok',
@@ -73,21 +87,37 @@ export function startServer(options?: Partial<ServerOptions>): void {
                   projects: memoryCache.has('transformed_projects'),
                 },
               }),
-              { headers },
+              {
+                headers: {
+                  ...corsHeaders,
+                  'Content-Type': 'application/json',
+                },
+              },
             );
           default:
             return new Response(JSON.stringify({ error: 'Not found' }), {
               status: 404,
-              headers,
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json',
+              },
             });
         }
 
-        return new Response(JSON.stringify(data), { headers });
+        return new Response(JSON.stringify(data), {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        });
       } catch (error: any) {
         console.error('API error:', error);
         return new Response(JSON.stringify({ error: 'Internal server error', message: error.message }), {
           status: 500,
-          headers,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
         });
       }
     },
