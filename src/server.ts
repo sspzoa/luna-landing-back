@@ -1,9 +1,11 @@
 // src/server.ts
 import { fetchAwards, fetchInformation, fetchMembers, fetchProjects, fetchQnA } from './api/notion';
 import { memoryCache } from './utils/cache-utils';
+import { setupCronJob } from './utils/cron';
 
 interface ServerOptions {
   port: number;
+  cronIntervalMs?: number;
 }
 
 export function startServer(options?: Partial<ServerOptions>): void {
@@ -124,4 +126,7 @@ export function startServer(options?: Partial<ServerOptions>): void {
   });
 
   console.log(`Server running at http://localhost:${server.port}`);
+
+  const cronInterval = options?.cronIntervalMs || 30 * 60 * 1000;
+  setupCronJob(cronInterval);
 }
