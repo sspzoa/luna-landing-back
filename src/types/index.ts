@@ -10,7 +10,6 @@ export interface NotionResponse {
   next_cursor: string | null;
 }
 
-
 export interface Member {
   id: string;
   position?: string;
@@ -34,6 +33,7 @@ export interface Award {
     start: string;
     end?: string;
   };
+  prizemoney?: string;
 }
 
 export interface Project {
