@@ -133,7 +133,7 @@ export async function fetchInformation(): Promise<Information[]> {
     ...info,
     contests: (awards.length + 40).toString(),
     projects: (projects.length + 23).toString(),
-    rewards: `${(totalPrizeMoney + 75000000).toString().slice(0, -6)}00`,
+    prizemoney: `${(totalPrizeMoney + 75000000).toString().slice(0, -6)}00`,
   }));
 
   memoryCache.set(cacheKey, updatedInfo);
