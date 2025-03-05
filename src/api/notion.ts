@@ -114,11 +114,31 @@ export async function fetchInformation(): Promise<Information[]> {
   }
 
   const response = await fetchNotionDatabase(DATABASE_IDS.INFORMATION);
-  const transformedData = transformInformation(response);
+  const baseInfo = transformInformation(response);
 
-  memoryCache.set(cacheKey, transformedData);
+  const awards = await fetchAwards();
+  const projects = await fetchProjects();
 
-  return transformedData;
+  let totalPrizeMoney = 0;
+  for (const award of awards) {
+    if (award.prizemoney) {
+      const prizeValue = Number(award.prizemoney);
+      if (!Number.isNaN(prizeValue)) {
+        totalPrizeMoney += prizeValue;
+      }
+    }
+  }
+
+  const updatedInfo = baseInfo.map((info) => ({
+    ...info,
+    contests: (awards.length + 40).toString(),
+    projects: (projects.length + 23).toString(),
+    rewards: `${(totalPrizeMoney + 75000000).toString().slice(0, -6)}00`,
+  }));
+
+  memoryCache.set(cacheKey, updatedInfo);
+
+  return updatedInfo;
 }
 
 export async function fetchProjects(): Promise<Project[]> {

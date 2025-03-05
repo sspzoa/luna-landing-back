@@ -24,6 +24,7 @@ export function transformAwards(data: NotionResponse): Award[] {
     team: item.properties.team?.rich_text[0]?.plain_text || null,
     members: item.properties.members?.multi_select.map((member: { name: string }) => member.name) || [],
     date: item.properties.date?.date || null,
+    prizemoney: item.properties.prizemoney?.number || null,
   }));
 }
 
