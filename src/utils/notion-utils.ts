@@ -48,6 +48,7 @@ export function transformQnA(data: NotionResponse): QnA[] {
   return data.results.map((item: any) => ({
     id: item.id,
     question: item.properties.question?.title[0]?.plain_text || null,
+    order: item.properties.order?.number || null,
     answer: item.properties.answer?.rich_text[0]?.plain_text || null,
   }));
 }
