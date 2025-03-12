@@ -49,6 +49,7 @@ export interface Project {
 export interface QnA {
   id: string;
   question?: string;
+  order?: number;
   answer?: string;
 }
 
