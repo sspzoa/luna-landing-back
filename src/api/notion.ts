@@ -61,6 +61,10 @@ export async function fetchAwards(): Promise<Award[]> {
       property: 'date',
       direction: 'descending',
     },
+    {
+      property: 'name',
+      direction: 'ascending',
+    },
   ]);
 
   const transformedData = transformAwards(response);
@@ -108,7 +112,7 @@ export async function fetchMembers(): Promise<Member[]> {
     },
     {
       property: 'generation',
-      direction: 'ascending',
+      direction: 'descending',
     },
     {
       property: 'name',
