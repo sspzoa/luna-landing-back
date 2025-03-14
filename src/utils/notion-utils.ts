@@ -13,7 +13,7 @@ export function transformMembers(data: NotionResponse): Member[] {
       const match = generation.match(/^(\d+)기$/);
       if (match?.[1]) {
         const generationNumber = Number.parseInt(match[1], 10);
-        returnImage = generationNumber >= thresholdGeneration;
+        returnImage = generationNumber > thresholdGeneration;
       }
     }
 
