@@ -79,7 +79,12 @@ export async function fetchQnA(): Promise<QnA[]> {
     return cachedData;
   }
 
-  const response = await fetchNotionDatabase(DATABASE_IDS.QNA);
+  const response = await fetchNotionDatabase(DATABASE_IDS.QNA, [
+    {
+      property: 'order',
+      direction: 'ascending',
+    },
+  ]);
   const transformedData = transformQnA(response);
 
   memoryCache.set(cacheKey, transformedData);
@@ -96,7 +101,20 @@ export async function fetchMembers(): Promise<Member[]> {
     return cachedData;
   }
 
-  const response = await fetchNotionDatabase(DATABASE_IDS.MEMBERS);
+  const response = await fetchNotionDatabase(DATABASE_IDS.MEMBERS, [
+    {
+      property: 'lunaGeneration',
+      direction: 'descending',
+    },
+    {
+      property: 'generation',
+      direction: 'descending',
+    },
+    {
+      property: 'name',
+      direction: 'ascending',
+    },
+  ]);
   const transformedData = transformMembers(response);
 
   memoryCache.set(cacheKey, transformedData);
@@ -150,7 +168,12 @@ export async function fetchProjects(): Promise<Project[]> {
     return cachedData;
   }
 
-  const response = await fetchNotionDatabase(DATABASE_IDS.PROJECTS);
+  const response = await fetchNotionDatabase(DATABASE_IDS.PROJECTS, [
+    {
+      property: 'name',
+      direction: 'ascending',
+    },
+  ]);
   const transformedData = transformProjects(response);
 
   memoryCache.set(cacheKey, transformedData);
