@@ -2,16 +2,32 @@
 import type { Award, Information, Member, NotionResponse, Project, QnA } from '../types';
 
 export function transformMembers(data: NotionResponse): Member[] {
-  return data.results.map((item: any) => ({
-    id: item.id,
-    position: item.properties.position?.select?.name || null,
-    image: item.properties.image?.files[0]?.file?.url || null,
-    name: item.properties.name?.title[0]?.plain_text || null,
-    generation: item.properties.generation?.select?.name || null,
-    class: item.properties.class?.select?.name || null,
-    description: item.properties.description?.rich_text[0]?.plain_text || null,
-    lunaGeneration: item.properties.lunaGeneration?.select?.name || null,
-  }));
+  const currentYear = new Date().getFullYear();
+  const thresholdGeneration = currentYear - 2004;
+
+  return data.results.map((item: any) => {
+    const generation = item.properties.generation?.select?.name || null;
+    let hideImage = false;
+
+    if (generation) {
+      const match = generation.match(/^(\d+)기$/);
+      if (match?.[1]) {
+        const generationNumber = Number.parseInt(match[1], 10);
+        hideImage = generationNumber <= thresholdGeneration;
+      }
+    }
+
+    return {
+      id: item.id,
+      position: item.properties.position?.select?.name || null,
+      image: hideImage ? null : item.properties.image?.files[0]?.file?.url || null,
+      name: item.properties.name?.title[0]?.plain_text || null,
+      generation: generation,
+      class: item.properties.class?.select?.name || null,
+      description: item.properties.description?.rich_text[0]?.plain_text || null,
+      lunaGeneration: item.properties.lunaGeneration?.select?.name || null,
+    };
+  });
 }
 
 export function transformAwards(data: NotionResponse): Award[] {
