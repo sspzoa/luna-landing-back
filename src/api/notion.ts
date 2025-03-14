@@ -108,7 +108,7 @@ export async function fetchMembers(): Promise<Member[]> {
     },
     {
       property: 'generation',
-      direction: 'descending',
+      direction: 'ascending',
     },
     {
       property: 'name',
