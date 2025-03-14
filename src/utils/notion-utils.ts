@@ -7,20 +7,20 @@ export function transformMembers(data: NotionResponse): Member[] {
 
   return data.results.map((item: any) => {
     const generation = item.properties.generation?.select?.name || null;
-    let hideImage = false;
+    let returnImage = false;
 
     if (generation) {
       const match = generation.match(/^(\d+)기$/);
       if (match?.[1]) {
         const generationNumber = Number.parseInt(match[1], 10);
-        hideImage = generationNumber <= thresholdGeneration;
+        returnImage = generationNumber >= thresholdGeneration;
       }
     }
 
     return {
       id: item.id,
       position: item.properties.position?.select?.name || null,
-      image: hideImage ? null : item.properties.image?.files[0]?.file?.url || null,
+      image: returnImage ? item.properties.image?.files[0]?.file?.url || null : null,
       name: item.properties.name?.title[0]?.plain_text || null,
       generation: generation,
       class: item.properties.class?.select?.name || null,
