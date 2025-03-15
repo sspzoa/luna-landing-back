@@ -2,5 +2,5 @@
 import { startServer } from './server';
 
 startServer({
-  cronIntervalMs: 10 * 60 * 1000,
+  cronIntervalMs: 30 * 60 * 1000,
 });
