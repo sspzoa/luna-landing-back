@@ -47,7 +47,7 @@ jobs:
   deploy:
     needs: build
     name: Deploy to Kubernetes
-    runs-on: [self-hosted]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -63,7 +63,7 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl create deployment ${{ env.NAME }} --image=${{ env.DOCKER_IMAGE }}:${{ env.VERSION }} --namespace=default --dry-run=client -o yaml | kubectl apply -f -
-          kubectl set image deployment/${{ env.NAME }} ${{ env.NAME }}=${{ env.DOCKER_IMAGE }}:${{ env.VERSION }} --namespace=default --record
+          kubectl set image deployment/${{ env.NAME }} ${{ env.NAME }}=${{ env.DOCKER_IMAGE }}:${{ env.VERSION }} --namespace=default --record || \
+          kubectl create deployment ${{ env.NAME }} --image=${{ env.DOCKER_IMAGE }}:${{ env.VERSION }} --namespace=default
 
           kubectl expose deployment ${{ env.NAME }} --port=3001 --target-port=3000 --type=ClusterIP --namespace=default --dry-run=client -o yaml | kubectl apply -f -
