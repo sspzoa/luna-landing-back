@@ -10,7 +10,7 @@ interface ServerOptions {
 
 export function startServer(options?: Partial<ServerOptions>): void {
   const server = Bun.serve({
-    port: options?.port || Number(process.env.PORT) || 3000,
+    port: options?.port || Number(process.env.PORT) || 3002,
     async fetch(request) {
       const url = new URL(request.url);
       const path = url.pathname;
