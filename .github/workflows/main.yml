@@ -67,20 +67,20 @@ jobs:
           apiVersion: apps/v1
           kind: Deployment
           metadata:
-            name: ${{ env.NAME }}
+            name: app-${{ env.NAME }}
             namespace: default
           spec:
             replicas: 1
             selector:
               matchLabels:
-                app: ${{ env.NAME }}
+                app: app-${{ env.NAME }}
             template:
               metadata:
                 labels:
-                  app: ${{ env.NAME }}
+                  app: app-${{ env.NAME }}
               spec:
                 containers:
-                - name: ${{ env.NAME }}
+                - name: app-${{ env.NAME }}
                   image: ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
                   ports:
                   - containerPort: 3000
@@ -91,7 +91,7 @@ jobs:
           apiVersion: v1
           kind: Service
           metadata:
-            name: ${{ env.NAME }}
+            name: app-${{ env.NAME }}
             namespace: default
           spec:
             type: ClusterIP
@@ -99,5 +99,5 @@ jobs:
             - port: 3001
               targetPort: 3000
             selector:
-              app: ${{ env.NAME }}
+              app: app-${{ env.NAME }}
           EOF
