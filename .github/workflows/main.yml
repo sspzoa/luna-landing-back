@@ -44,16 +44,6 @@ jobs:
           build-args: |
             NOTION_API_KEY=${{ secrets.NOTION_API_KEY }}
 
-      - name: Create Kubernetes Secret
-        uses: azure/k8s-create-secret@v1
-        with:
-          container-registry-url: ghcr.io
-          container-registry-username: ${{ github.repository_owner }}
-          container-registry-password: ${{ secrets.GHCR_TOKEN }}
-          secret-name: ghcr-secret
-          namespace: default
-          kubeconfig: ${{ secrets.KUBE_CONFIG }}
-
   deploy:
     needs: build
     name: Deploy to Kubernetes
@@ -70,6 +60,16 @@ jobs:
         uses: azure/k8s-set-context@v3
         with:
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Create Docker Registry Secret
+        run: |
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server=ghcr.io \
+            --docker-username=${{ github.repository_owner }} \
+            --docker-password=${{ secrets.GHCR_TOKEN }} \
+            --docker-email=${{ github.repository_owner }}@users.noreply.github.com \
+            --namespace=default \
+            --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Deploy to Kubernetes
         run: |
