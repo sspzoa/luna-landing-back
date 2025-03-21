@@ -56,6 +56,6 @@ jobs:
           docker stop ${{ env.NAME }} || true
           docker rm ${{ env.NAME }} || true
           docker rmi ${{ env.DOCKER_IMAGE }}:latest || true
-          docker run -d -p 3000:3001 --name ${{ env.NAME }} --restart always \
+          docker run -d -p 3001:3000 --name ${{ env.NAME }} --restart always \
             -e NOTION_API_KEY=${{ secrets.NOTION_API_KEY }} \
             ${{ env.DOCKER_IMAGE }}:latest
