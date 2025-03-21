@@ -64,7 +64,18 @@ jobs:
       - name: Update Docker Registry Secret
         run: |
           kubectl delete secret ghcr-secret -n default --ignore-not-found
-          kubectl create secret docker-registry ghcr-secret --docker-server=ghcr.io --docker-username=${{ github.repository_owner }} --docker-password=${{ secrets.GHCR_TOKEN }} --docker-email=${{ github.repository_owner }}@users.noreply.github.com --namespace=default
+          
+          DOCKER_SERVER="ghcr.io"
+          DOCKER_USERNAME="${{ github.repository_owner }}"
+          DOCKER_PASSWORD="${{ secrets.GHCR_TOKEN }}"
+          DOCKER_EMAIL="${{ github.repository_owner }}@users.noreply.github.com"
+          
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server="$DOCKER_SERVER" \
+            --docker-username="$DOCKER_USERNAME" \
+            --docker-password="$DOCKER_PASSWORD" \
+            --docker-email="$DOCKER_EMAIL" \
+            --namespace=default
 
       - name: Deploy to Kubernetes
         run: |
