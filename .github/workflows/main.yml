@@ -112,10 +112,11 @@ jobs:
             name: app-${{ env.NAME }}
             namespace: default
           spec:
-            type: LoadBalancer
+            type: NodePort
             ports:
-            - port: 3001
+            - port: 3000
               targetPort: 3000
+              nodePort: 30001
             selector:
               app: app-${{ env.NAME }}
           EOF
