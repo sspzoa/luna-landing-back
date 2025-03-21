@@ -63,7 +63,41 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl create deployment ${{ env.NAME }} --image=${{ env.DOCKER_IMAGE }}:${{ env.VERSION }} --namespace=default --dry-run=client -o yaml | kubectl apply -f -
-          kubectl set image deployment/${{ env.NAME }} ${{ env.NAME }}=${{ env.DOCKER_IMAGE }}:${{ env.VERSION }} --namespace=default --record
-
-          kubectl expose deployment ${{ env.NAME }} --port=3001 --target-port=3000 --type=ClusterIP --namespace=default --dry-run=client -o yaml | kubectl apply -f -
+          cat <<EOF | kubectl apply -f -
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: ${{ env.NAME }}
+            namespace: default
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: ${{ env.NAME }}
+            template:
+              metadata:
+                labels:
+                  app: ${{ env.NAME }}
+              spec:
+                containers:
+                - name: ${{ env.NAME }}
+                  image: ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
+                  ports:
+                  - containerPort: 3000
+                  env:
+                  - name: NOTION_API_KEY
+                    value: "${{ secrets.NOTION_API_KEY }}"
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: ${{ env.NAME }}
+            namespace: default
+          spec:
+            type: ClusterIP
+            ports:
+            - port: 3001
+              targetPort: 3000
+            selector:
+              app: ${{ env.NAME }}
+          EOF
