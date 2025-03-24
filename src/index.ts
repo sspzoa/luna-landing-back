@@ -1,6 +1,8 @@
 // src/index.ts
-import { startServer } from './server';
+import { startIntegratedServer } from './server';
 
-startServer({
+startIntegratedServer({
+  port: Number(process.env.PORT) || 3000,
+  publicDir: process.env.PUBLIC_DIR || undefined,
   cronIntervalMs: 30 * 60 * 1000,
 });
