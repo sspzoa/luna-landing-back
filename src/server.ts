@@ -41,17 +41,28 @@ export function startServer(options?: Partial<ServerOptions>): void {
 
       if (pathname.startsWith('/images/')) {
         try {
-          const imagePath = url.pathname.replace('/images/', '');
+          const imagePath = pathname.replace('/images/', '');
           const filePath = path.join(process.cwd(), 'public', 'images', imagePath);
 
           if (!fs.existsSync(filePath)) {
             return new Response('Image not found', { status: 404 });
           }
 
-          const file = Bun.file(filePath);
-          const contentType = file.type || 'application/octet-stream';
+          const fileBuffer = fs.readFileSync(filePath);
+          let contentType = 'application/octet-stream';
 
-          return new Response(file, {
+          // Simple MIME type detection based on extension
+          if (imagePath.endsWith('.jpg') || imagePath.endsWith('.jpeg')) {
+            contentType = 'image/jpeg';
+          } else if (imagePath.endsWith('.png')) {
+            contentType = 'image/png';
+          } else if (imagePath.endsWith('.gif')) {
+            contentType = 'image/gif';
+          } else if (imagePath.endsWith('.webp')) {
+            contentType = 'image/webp';
+          }
+
+          return new Response(fileBuffer, {
             headers: {
               ...corsHeaders,
               'Content-Type': contentType,
