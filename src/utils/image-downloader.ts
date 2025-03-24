@@ -1,10 +1,17 @@
 // src/utils/image-downloader.ts
 import fs from 'node:fs';
 import path from 'node:path';
+import sharp from 'sharp';
 import type { Award, Member, Project } from '../types';
 
 const STATIC_DIR = path.join(process.cwd(), 'public/images');
 const BASE_URL = process.env.API_BASE_URL || 'https://api.luna.codes';
+const QUALITY = {
+  jpg: 80,
+  png: 8,
+  webp: 75,
+};
+const MAX_WIDTH = 1200;
 
 export function ensureStaticDir() {
   if (!fs.existsSync(STATIC_DIR)) {
@@ -33,6 +40,38 @@ function getFileExtension(url: string): string {
   return extension;
 }
 
+async function optimizeAndSaveImage(buffer: Buffer, extension: string, filePath: string): Promise<void> {
+  if (extension === '.svg') {
+    fs.writeFileSync(filePath, buffer);
+    return;
+  }
+
+  let sharpInstance = sharp(buffer).withMetadata();
+
+  const metadata = await sharpInstance.metadata();
+  if (metadata.width && metadata.width > MAX_WIDTH) {
+    sharpInstance = sharpInstance.resize(MAX_WIDTH);
+  }
+
+  switch (extension) {
+    case '.jpg':
+    case '.jpeg':
+      await sharpInstance.jpeg({ quality: QUALITY.jpg }).toFile(filePath);
+      break;
+    case '.png':
+      await sharpInstance.png({ compressionLevel: QUALITY.png }).toFile(filePath);
+      break;
+    case '.webp':
+      await sharpInstance.webp({ quality: QUALITY.webp }).toFile(filePath);
+      break;
+    case '.gif':
+      await sharpInstance.toFile(filePath);
+      break;
+    default:
+      await sharpInstance.jpeg({ quality: QUALITY.jpg }).toFile(filePath);
+  }
+}
+
 async function downloadImage(url: string, baseFilename: string): Promise<string> {
   try {
     const response = await fetch(url);
@@ -54,7 +93,8 @@ async function downloadImage(url: string, baseFilename: string): Promise<string>
     const filename = `${baseFilename}${extension}`;
     const buffer = await response.arrayBuffer();
     const filePath = path.join(STATIC_DIR, filename);
-    fs.writeFileSync(filePath, Buffer.from(buffer));
+
+    await optimizeAndSaveImage(Buffer.from(buffer), extension, filePath);
 
     return `${BASE_URL}/images/${filename}`;
   } catch (error) {
