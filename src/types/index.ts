@@ -13,7 +13,7 @@ export interface NotionResponse {
 export interface Member {
   id: string;
   position?: string;
-  image?: string;
+  image?: string | null;
   name?: string;
   generation?: string;
   class?: string;
@@ -24,7 +24,7 @@ export interface Member {
 export interface Award {
   id: string;
   year?: string;
-  image?: string;
+  image?: string | null;
   name?: string;
   prize?: string;
   team?: string;
@@ -40,7 +40,7 @@ export interface Project {
   id: string;
   public_url: string;
   year?: string;
-  image?: string;
+  image?: string | null;
   name?: string;
   description?: string;
   awards?: Array<{ id: string; name: string }>;
