@@ -1,6 +1,6 @@
 // src/server.ts
 import { fetchAwards, fetchInformation, fetchMembers, fetchProjects, fetchQnA } from './api/notion';
-import { memoryCache } from './utils/cache-utils';
+import { sqliteCache } from './utils/sqlite-cache';
 import { setupCronJob } from './utils/cron';
 
 interface ServerOptions {
@@ -38,7 +38,7 @@ export function startServer(options?: Partial<ServerOptions>): void {
       }
 
       if (path === '/clear-cache' && request.method === 'POST') {
-        memoryCache.clear();
+        sqliteCache.clear();
         return new Response(JSON.stringify({ success: true, message: 'Cache cleared' }), {
           headers: {
             ...corsHeaders,
@@ -82,11 +82,11 @@ export function startServer(options?: Partial<ServerOptions>): void {
               JSON.stringify({
                 status: 'ok',
                 cacheStatus: {
-                  awards: memoryCache.has('transformed_awards'),
-                  qna: memoryCache.has('transformed_qna'),
-                  members: memoryCache.has('transformed_members'),
-                  information: memoryCache.has('transformed_information'),
-                  projects: memoryCache.has('transformed_projects'),
+                  awards: sqliteCache.has('transformed_awards'),
+                  qna: sqliteCache.has('transformed_qna'),
+                  members: sqliteCache.has('transformed_members'),
+                  information: sqliteCache.has('transformed_information'),
+                  projects: sqliteCache.has('transformed_projects'),
                 },
               }),
               {

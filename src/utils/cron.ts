@@ -1,11 +1,12 @@
+// src/utils/cron.ts
 import { fetchAwards, fetchInformation, fetchMembers, fetchProjects, fetchQnA } from '../api/notion';
-import { memoryCache } from './cache-utils';
+import { sqliteCache } from './sqlite-cache';
 
 async function refreshAllData() {
   console.log('Cron job: Refreshing all cached data...');
 
   try {
-    memoryCache.clear();
+    sqliteCache.clear();
 
     await Promise.all([fetchAwards(), fetchQnA(), fetchMembers(), fetchInformation(), fetchProjects()]);
 
