@@ -1,7 +1,6 @@
 // src/utils/image-downloader.ts
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { Award, Member, Project } from '../types';
 
 const STATIC_DIR = path.join(process.cwd(), 'public/images');
@@ -23,13 +22,36 @@ export function clearStaticDir() {
   ensureStaticDir();
 }
 
-async function downloadImage(url: string, filename: string): Promise<string> {
+function getFileExtension(url: string): string {
+  const urlPath = new URL(url).pathname;
+  const extension = path.extname(urlPath).toLowerCase();
+
+  if (!extension || !['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'].includes(extension)) {
+    return '.jpg';
+  }
+
+  return extension;
+}
+
+async function downloadImage(url: string, baseFilename: string): Promise<string> {
   try {
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to download image: ${response.status} ${response.statusText}`);
     }
 
+    const contentType = response.headers.get('content-type');
+    let extension = getFileExtension(url);
+
+    if (contentType) {
+      if (contentType.includes('image/jpeg')) extension = '.jpg';
+      else if (contentType.includes('image/png')) extension = '.png';
+      else if (contentType.includes('image/gif')) extension = '.gif';
+      else if (contentType.includes('image/webp')) extension = '.webp';
+      else if (contentType.includes('image/svg+xml')) extension = '.svg';
+    }
+
+    const filename = `${baseFilename}${extension}`;
     const buffer = await response.arrayBuffer();
     const filePath = path.join(STATIC_DIR, filename);
     fs.writeFileSync(filePath, Buffer.from(buffer));
@@ -45,8 +67,8 @@ export async function downloadMemberImages(members: Member[]): Promise<Member[]>
   return await Promise.all(
     members.map(async (member) => {
       if (member.image) {
-        const filename = `member_${member.id}.jpg`;
-        const localPath = await downloadImage(member.image, filename);
+        const baseFilename = `member_${member.id}`;
+        const localPath = await downloadImage(member.image, baseFilename);
         return { ...member, image: localPath || member.image };
       }
       return member;
@@ -58,8 +80,8 @@ export async function downloadAwardImages(awards: Award[]): Promise<Award[]> {
   return await Promise.all(
     awards.map(async (award) => {
       if (award.image) {
-        const filename = `award_${award.id}.jpg`;
-        const localPath = await downloadImage(award.image, filename);
+        const baseFilename = `award_${award.id}`;
+        const localPath = await downloadImage(award.image, baseFilename);
         return { ...award, image: localPath || award.image };
       }
       return award;
@@ -71,8 +93,8 @@ export async function downloadProjectImages(projects: Project[]): Promise<Projec
   return await Promise.all(
     projects.map(async (project) => {
       if (project.image) {
-        const filename = `project_${project.id}.jpg`;
-        const localPath = await downloadImage(project.image, filename);
+        const baseFilename = `project_${project.id}`;
+        const localPath = await downloadImage(project.image, baseFilename);
         return { ...project, image: localPath || project.image };
       }
       return project;
