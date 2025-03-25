@@ -48,7 +48,9 @@ async function fetchNotionDatabase(databaseId: string, sorts: NotionSortOption[]
 }
 
 export async function fetchAwards(): Promise<Award[]> {
-  const cachedData = sqliteCache.get<Award[]>('transformed_awards');
+  const cacheKey = 'transformed_awards';
+
+  const cachedData = sqliteCache.get<Award[]>(cacheKey);
   if (cachedData) {
     console.log('Using cached awards data');
     return cachedData;
@@ -66,11 +68,16 @@ export async function fetchAwards(): Promise<Award[]> {
   ]);
 
   const transformedData = transformAwards(response);
+
+  sqliteCache.set(cacheKey, transformedData);
+
   return transformedData;
 }
 
 export async function fetchQnA(): Promise<QnA[]> {
-  const cachedData = sqliteCache.get<QnA[]>('transformed_qna');
+  const cacheKey = 'transformed_qna';
+
+  const cachedData = sqliteCache.get<QnA[]>(cacheKey);
   if (cachedData) {
     console.log('Using cached QnA data');
     return cachedData;
@@ -84,13 +91,15 @@ export async function fetchQnA(): Promise<QnA[]> {
   ]);
   const transformedData = transformQnA(response);
 
-  sqliteCache.set('transformed_qna', transformedData);
+  sqliteCache.set(cacheKey, transformedData);
 
   return transformedData;
 }
 
 export async function fetchMembers(): Promise<Member[]> {
-  const cachedData = sqliteCache.get<Member[]>('transformed_members');
+  const cacheKey = 'transformed_members';
+
+  const cachedData = sqliteCache.get<Member[]>(cacheKey);
   if (cachedData) {
     console.log('Using cached members data');
     return cachedData;
@@ -112,11 +121,15 @@ export async function fetchMembers(): Promise<Member[]> {
   ]);
   const transformedData = transformMembers(response);
 
+  sqliteCache.set(cacheKey, transformedData);
+
   return transformedData;
 }
 
 export async function fetchInformation(): Promise<Information[]> {
-  const cachedData = sqliteCache.get<Information[]>('transformed_information');
+  const cacheKey = 'transformed_information';
+
+  const cachedData = sqliteCache.get<Information[]>(cacheKey);
   if (cachedData) {
     console.log('Using cached information data');
     return cachedData;
@@ -145,13 +158,15 @@ export async function fetchInformation(): Promise<Information[]> {
     prizemoney: `${(totalPrizeMoney + 75000000).toString().slice(0, -6)}00`,
   }));
 
-  sqliteCache.set('transformed_information', updatedInfo);
+  sqliteCache.set(cacheKey, updatedInfo);
 
   return updatedInfo;
 }
 
 export async function fetchProjects(): Promise<Project[]> {
-  const cachedData = sqliteCache.get<Project[]>('transformed_projects');
+  const cacheKey = 'transformed_projects';
+
+  const cachedData = sqliteCache.get<Project[]>(cacheKey);
   if (cachedData) {
     console.log('Using cached projects data');
     return cachedData;
@@ -164,6 +179,8 @@ export async function fetchProjects(): Promise<Project[]> {
     },
   ]);
   const transformedData = transformProjects(response);
+
+  sqliteCache.set(cacheKey, transformedData);
 
   return transformedData;
 }

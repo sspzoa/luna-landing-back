@@ -2,8 +2,6 @@
 import { fetchAwards, fetchInformation, fetchMembers, fetchProjects, fetchQnA } from './api/notion';
 import { sqliteCache } from './utils/sqlite-cache';
 import { setupCronJob } from './utils/cron';
-import fs from 'node:fs';
-import path from 'node:path';
 
 interface ServerOptions {
   port: number;
@@ -15,7 +13,7 @@ export function startServer(options?: Partial<ServerOptions>): void {
     port: options?.port || Number(process.env.PORT) || 3000,
     async fetch(request) {
       const url = new URL(request.url);
-      const pathname = url.pathname;
+      const path = url.pathname;
 
       const corsHeaders = {
         'Access-Control-Allow-Origin': '*',
@@ -30,7 +28,7 @@ export function startServer(options?: Partial<ServerOptions>): void {
         });
       }
 
-      if (pathname === '/') {
+      if (path === '/') {
         return new Response('api.luna.codes', {
           headers: {
             ...corsHeaders,
@@ -39,32 +37,7 @@ export function startServer(options?: Partial<ServerOptions>): void {
         });
       }
 
-      if (pathname.startsWith('/images/')) {
-        try {
-          const imagePath = url.pathname.replace('/images/', '');
-          const filePath = path.join(process.cwd(), 'public', 'images', imagePath);
-
-          if (!fs.existsSync(filePath)) {
-            return new Response('Image not found', { status: 404 });
-          }
-
-          const file = Bun.file(filePath);
-          const contentType = file.type || 'application/octet-stream';
-
-          return new Response(file, {
-            headers: {
-              ...corsHeaders,
-              'Content-Type': contentType,
-              'Cache-Control': 'public, max-age=86400',
-            },
-          });
-        } catch (error) {
-          console.error('Error serving static file:', error);
-          return new Response('Error serving image', { status: 500 });
-        }
-      }
-
-      if (pathname === '/clear-cache' && request.method === 'POST') {
+      if (path === '/clear-cache' && request.method === 'POST') {
         sqliteCache.clear();
         return new Response(JSON.stringify({ success: true, message: 'Cache cleared' }), {
           headers: {
@@ -74,7 +47,7 @@ export function startServer(options?: Partial<ServerOptions>): void {
         });
       }
 
-      if (pathname !== '/clear-cache' && request.method !== 'GET') {
+      if (path !== '/clear-cache' && request.method !== 'GET') {
         return new Response(JSON.stringify({ error: 'Method not allowed' }), {
           status: 405,
           headers: {
@@ -88,7 +61,7 @@ export function startServer(options?: Partial<ServerOptions>): void {
         // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
         let data;
 
-        switch (pathname) {
+        switch (path) {
           case '/awards':
             data = await fetchAwards();
             break;
