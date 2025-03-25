@@ -51,6 +51,7 @@ export function startServer(options?: Partial<ServerOptions>): void {
           const fileBuffer = fs.readFileSync(filePath);
           let contentType = 'application/octet-stream';
 
+          // Simple MIME type detection based on extension
           if (imagePath.endsWith('.jpg') || imagePath.endsWith('.jpeg')) {
             contentType = 'image/jpeg';
           } else if (imagePath.endsWith('.png')) {
