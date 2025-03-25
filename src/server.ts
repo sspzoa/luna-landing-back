@@ -60,8 +60,6 @@ export function startServer(options?: Partial<ServerOptions>): void {
             contentType = 'image/gif';
           } else if (imagePath.endsWith('.webp')) {
             contentType = 'image/webp';
-          } else if (imagePath.endsWith('.svg')) {
-            contentType = 'image/svg+xml';
           }
 
           return new Response(fileBuffer, {
