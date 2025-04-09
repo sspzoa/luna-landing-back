@@ -1,5 +1,5 @@
-// src/utils/notion-utils.ts
 import type { Award, Information, Member, NotionResponse, Project, QnA } from '../types';
+import { logger } from './logger';
 
 export function transformMembers(data: NotionResponse): Member[] {
   const currentYear = new Date().getFullYear();
@@ -74,4 +74,17 @@ export function transformInformation(data: NotionResponse): Information[] {
     id: item.id,
     moto: item.properties.moto?.title[0]?.plain_text || null,
   }));
+}
+
+export function calculateTotalPrizeMoney(awards: Award[]): number {
+  let total = 0;
+  for (const award of awards) {
+    if (award.prizemoney) {
+      const prizeValue = Number(award.prizemoney);
+      if (!Number.isNaN(prizeValue)) {
+        total += prizeValue;
+      }
+    }
+  }
+  return total;
 }
