@@ -1,6 +1,11 @@
-// src/index.ts
-import { startServer } from './server';
+import { createServer } from './server';
+import { logger } from './utils/logger';
+import { CONFIG } from './config';
 
-startServer({
-  cronIntervalMs: 30 * 60 * 1000,
+const server = createServer({
+  cronIntervalMs: CONFIG.CRON.REFRESH_INTERVAL,
 });
+
+logger.info(`Server running at http://${CONFIG.SERVER.HOST}:${server.port}`);
+
+export { server };

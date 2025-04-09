@@ -1,4 +1,3 @@
-// src/types/index.ts
 export interface NotionSortOption {
   property: string;
   direction: 'ascending' | 'descending';
@@ -59,4 +58,16 @@ export interface Information {
   contests?: string;
   projects?: string;
   prizemoney?: string;
+}
+
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+export interface HealthResponse {
+  status: string;
+  cacheStatus: Record<string, boolean>;
 }
