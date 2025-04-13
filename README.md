@@ -1,15 +1,2 @@
 # luna-landing-back
-
-To install dependencies:
-
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.2.2. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+한국디지털미디어고등학교 IT 소셜벤쳐 동아리, LUNA의 랜딩페이지
